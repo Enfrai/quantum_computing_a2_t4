@@ -38,7 +38,10 @@ public final class Main {
     String body="{\"count\":"+shots+",\"script\":\""+esc(qasm)+"\"}";
     HttpRequest req=HttpRequest.newBuilder(URI.create(URL)).timeout(Duration.ofSeconds(90)).header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(body,StandardCharsets.UTF_8)).build();
     HttpResponse<String> response=HTTP.send(req,HttpResponse.BodyHandlers.ofString());
-    if(response.statusCode()/100!=2) {\n      String location=response.headers().firstValue("Location").orElse("(not provided)");\n      throw new RuntimeException("Quokka HTTP "+response.statusCode()+" at "+response.uri()+"; Location: "+location+"; Body: "+response.body());\n    }
+    if(response.statusCode()/100!=2) {
+      String location=response.headers().firstValue("Location").orElse("(not provided)");
+      throw new RuntimeException("Quokka HTTP "+response.statusCode()+" at "+response.uri()+"; Location: "+location+"; Body: "+response.body());
+    }
     return response.body();
   }
   public static void main(String[] a) {
