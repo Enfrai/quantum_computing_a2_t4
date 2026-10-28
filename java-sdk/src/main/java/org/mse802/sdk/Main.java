@@ -9,7 +9,7 @@ import java.util.*;
 /** Quantum Quokka gateway and circuit-free classical baseline SDK. Author: Shuohui Liu. Date: 28 Oct 2026. */
 public final class Main {
   static final String URL = System.getenv().getOrDefault("QUOKKA_URL", "http://quokka1.quokkacomputing.com/qsim/qasm");
-  static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(12)).build();
+  static final HttpClient HTTP = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(12)).build();
   static String arg(String[] a, int i) { if (a.length <= i) throw new IllegalArgumentException("Missing argument " + i); return a[i]; }
   static String esc(String s) { return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r"); }
   static String block(double a, double b, int i, int j) { return "ry("+a+") q["+i+"];\nry("+b+") q["+j+"];\ncx q["+i+"],q["+j+"];\n"; }
@@ -38,7 +38,7 @@ public final class Main {
     String body="{\"count\":"+shots+",\"script\":\""+esc(qasm)+"\"}";
     HttpRequest req=HttpRequest.newBuilder(URI.create(URL)).timeout(Duration.ofSeconds(90)).header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(body,StandardCharsets.UTF_8)).build();
     HttpResponse<String> response=HTTP.send(req,HttpResponse.BodyHandlers.ofString());
-    if(response.statusCode()/100!=2)throw new RuntimeException("Quokka HTTP "+response.statusCode()+": "+response.body());
+    if(response.statusCode()/100!=2) {\n      String location=response.headers().firstValue("Location").orElse("(not provided)");\n      throw new RuntimeException("Quokka HTTP "+response.statusCode()+" at "+response.uri()+"; Location: "+location+"; Body: "+response.body());\n    }
     return response.body();
   }
   public static void main(String[] a) {
