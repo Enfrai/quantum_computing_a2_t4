@@ -21,8 +21,8 @@ public final class QuokkaRedirectTest {
     });
     server.createContext("/target", exchange -> {
       String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-      if (!exchange.getRequestMethod().equals("POST") || !body.contains("\\"count\\":3") ||
-          !body.contains("\\"script\\":")) {
+      if (!exchange.getRequestMethod().equals("POST") || !body.contains("\"count\":3") ||
+          !body.contains("\"script\":")) {
         exchange.sendResponseHeaders(400, -1);
       } else {
         byte[] response = "{\"result\":{\"c\":[0,1,0]}}".getBytes(StandardCharsets.UTF_8);
